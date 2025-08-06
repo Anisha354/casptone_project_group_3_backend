@@ -3,14 +3,12 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
 
-let transport;
+let transporter;
 
 if (process.env.NODE_ENV === "development") {
-  // ── Development: Ethereal test account ─────────────────
+  // Dev: Ethereal
   const testAccount = await nodemailer.createTestAccount();
-  console.log("🧪  Ethereal test account:", testAccount);
-
-  transport = nodemailer.createTransport({
+  transporter = nodemailer.createTransport({
     host: testAccount.smtp.host,
     port: testAccount.smtp.port,
     secure: testAccount.smtp.secure,
@@ -19,33 +17,37 @@ if (process.env.NODE_ENV === "development") {
       pass: testAccount.pass,
     },
   });
+  console.log("🧪  Using Ethereal SMTP for development");
 } else {
-  // ── Production: your SendGrid SMTP ──────────────────────
-  const host = process.env.SMTP_HOST;     // smtp.sendgrid.net
-  const port = parseInt(process.env.SMTP_PORT, 10); // 465
-  const user = process.env.SMTP_USER;     // apikey
-  const pass = process.env.SMTP_PASS;     // SG.xxxx…
+  // Prod: SendGrid SMTP via env-vars
+  const host = process.env.SMTP_HOST;      // e.g. smtp.sendgrid.net
+  const port = Number(process.env.SMTP_PORT); // e.g. 465
+  const user = process.env.SMTP_USER;      // should be "apikey"
+  const pass = process.env.SMTP_PASS;      // your SendGrid API key
 
-  // sanity check
-  if (!host || !port || !user || !pass) {
-    console.error(
-      "🚨 SMTP config missing! Please set SMTP_HOST, SMTP_PORT, SMTP_USER & SMTP_PASS"
-    );
-  }
-
-  transport = nodemailer.createTransport({
+  transporter = nodemailer.createTransport({
     host,
     port,
-    secure: port === 465, // true for 465, false otherwise
+    secure: port === 465,
     auth: { user, pass },
   });
+  console.log(`📬  Using SMTP ${host}:${port} user=${user}`);
 }
 
-// set a global default `from:` address, override with SMTP_FROM if you like
-transport.defaults = {
+// Global default `from:` (override via SMTP_FROM)
+transporter.defaults = {
   from:
     process.env.SMTP_FROM ||
     '"Dresses Fashion Store" <dressesfashionstore@gmail.com>',
 };
 
-export default transport;
+// Verify connection configuration immediately
+transporter.verify((err, success) => {
+  if (err) {
+    console.error("❌  SMTP configuration is invalid:", err);
+  } else {
+    console.log("✅  SMTP transporter is ready to send emails");
+  }
+});
+
+export default transporter;
