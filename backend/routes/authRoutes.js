@@ -10,7 +10,7 @@ import { createError } from "../error.js";
 
 const router = express.Router();
 const limiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 5 });
-const FRONTEND = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
+const FRONTEND = process.env.FRONTEND_ORIGIN || "https://casptone-project-group-3-frontend.onrender.com";
 
 router.post("/forgot", limiter, async (req, res, next) => {
   try {
