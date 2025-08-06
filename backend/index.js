@@ -20,7 +20,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_ORIGIN || "http://localhost:3000",
+    origin: process.env.FRONTEND_ORIGIN || "https://casptone-project-group-3-frontend.onrender.com",
     credentials: true,
   })
 );
