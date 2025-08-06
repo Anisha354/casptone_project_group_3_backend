@@ -1,0 +1,65 @@
+// backend/index.js
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import * as dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import userRoutes from "./routes/user.js";
+
+import contactRoutes from "./routes/contactRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import UserRouter from "./routes/user.js";
+import CartRouter from "./routes/cartRoutes.js";
+import OrderRouter from "./routes/orders.js";
+import authRoutes from "./routes/authRoutes.js";
+
+dotenv.config();
+
+const app = express();
+
+app.use(
+  cors({
+    origin: process.env.FRONTEND_ORIGIN || "http://localhost:3000",
+    credentials: true,
+  })
+);
+
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+app.use("/images", express.static(path.join(__dirname, "seed/images")));
+
+app.get("/", (_req, res) => {
+  res.status(200).json({ message: "Hello This is Group 3 Project" });
+});
+app.use("/api/user", userRoutes);
+app.use("/api/user", UserRouter);
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/orders", OrderRouter);
+app.use("/api/contact", contactRoutes);
+app.use("/api/cart", CartRouter);
+
+app.use((err, _req, res, _next) => {
+  const status = err.status || 500;
+  const message = err.message || "Server error";
+  console.error(`[${status}] ${message}`);
+  res.status(status).json({ success: false, status, message });
+});
+
+const connectDB = () => {
+  mongoose.set("strictQuery", true);
+  const mongoUri = process.env.MODNO_DB || process.env.MONGO_URI;
+  mongoose
+    .connect(mongoUri)
+    .then(() => console.log("Connected to Capstone Group 3 MongoDB"))
+    .catch((err) => {
+      console.error("Failed to connect with MongoDB", err);
+    });
+};
+
+connectDB();
+const port = process.env.PORT || 8000;
+app.listen(port, () => console.log(`Server started on port ${port}`));
