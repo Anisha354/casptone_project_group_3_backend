@@ -105,7 +105,7 @@ router.post("/", verifyToken, async (req, res, next) => {
   <!-- Footer -->
   <tr>
     <td style="background:#ffffff;padding:12px;text-align:center;font-size:12px;color:#888;border-top:1px solid #ddd;">
-      © 2025 Dresses Paradise. All rights reserved.
+      © 2025 Dresses Fashion Store. All rights reserved.
     </td>
   </tr>
 </table>
@@ -113,7 +113,7 @@ router.post("/", verifyToken, async (req, res, next) => {
 
     // 4) Send confirmation email
     await mailer.sendMail({
-      from: '"Dresses Paradise" <dressesfashionstore@gmail.com>',
+      from: '"Dresses Fashion Store" <dressesfashionstore@gmail.com>',
       to: user.email,
       subject: "Your Order Confirmation",
       html: emailHtml,
